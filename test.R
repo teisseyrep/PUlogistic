@@ -1,12 +1,14 @@
 rm(list = ls())
 
+source("logistic_fit.R")
 source("logistic_fit_joint.R")
+source("logistic_fit_weighted.R")
 source("functions.R")
 
 #SET PARAMETERS:
 c = 0.7 #label frequency
 b = 1 #true signal
-p = 10 #number of features
+p = 5 #number of features
 n = 10000 #sample size
 
 #GENERATE ARTIFICIAL DATASET:
@@ -35,14 +37,14 @@ beta_true = c(beta0,beta)
 
 
 #ORACLE METHOD:
-model_oracle = glm(y ~ x, family = "binomial")
-beta_oracle = as.numeric(coef(model_oracle))
+beta_oracle = logistic_fit_joint(x, y)$par
 
 
 #NAIVE METHOD:
-model_naive = glm(s ~ x, family = "binomial")
-beta_naive = as.numeric(coef(model_naive))
+beta_naive = logistic_fit(x, s)$par
 
+#WEIGHTED METHOD (requires knowledge of c): 
+beta_weighted = logistic_fit_w(x, s,c)$par
 
 #JOINT METHOD:
 par_joint = logistic_fit_joint(x, s)$par
@@ -54,6 +56,7 @@ c_joint = par_joint[length(par_joint)]
 cat("Parameters (true):",beta_true,"\n")
 cat("Parameters (oracle):",beta_oracle,"\n")
 cat("Parameters (naive):",beta_naive,"\n")
+cat("Parameters (weighted):",beta_weighted,"\n")
 cat("Parameters (joint method):",beta_joint,"\n")
 cat("Estimated c (joint method):" ,c_joint,"\n")
 
